@@ -5,3 +5,4 @@ from FilDrop.models import *
 admin.site.register(User)
 admin.site.register(UserCollection)
 admin.site.register(UserCollectionImage)
+admin.site.register(ImageMetaData)

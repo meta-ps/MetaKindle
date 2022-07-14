@@ -2,6 +2,7 @@ from django.db import models
 from config.settings import BASE_DIR
 import os
 from pathlib import Path
+import datetime
 
 # Create your models here.
 class User(models.Model):
@@ -38,3 +39,16 @@ class UserCollectionImage(models.Model):
     def __str__(self):
         return self.usercollection.collection_name
 
+class ImageMetaData(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    usercollection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
+    img = models.ForeignKey(UserCollectionImage, on_delete=models.CASCADE)
+    latitude =models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    weekno = models.CharField(max_length=10, null=True, blank=True)
+    metadata_date=models.DateField()
+    present_date=models.DateField(default=datetime.date.today)
+    is_active = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return str("Meta data")
