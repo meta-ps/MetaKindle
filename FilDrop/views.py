@@ -10,6 +10,7 @@ from pathlib2 import Path as Path2_
 import requests
 from PIL import Image
 from PIL.ExifTags import TAGS
+import exifread
 
 base_uri = "ipfs://"
 NFTSTORAGE_API_KEY = keys['NFTSTORAGE']
@@ -152,7 +153,7 @@ def ImageUpload(request,pkk):
     print('LISTSTSTST----------------------------------------------------------------------')
     print(img_file_list)
     #fetchAndSaveDataloc
-    fetchAndSaveDataloc()
+    fetchAndSaveDataloc(request)
  
     cid = c.upload(img_file_list, 'image/png')
     usercollection_obj = UserCollection.objects.get(id=pkk)
@@ -173,18 +174,31 @@ def fetchAndSaveDataloc(request):
     user = User.objects.get(WalletAddress=WalletAddress)
     
     obj_img=UserCollectionImage.objects.get(user=user)
-    try:
-        image = obj_img.image                           #Image.open("img.jpg")
-    except:
-        pass
-        print('exception in img obj')
-    exifdata = image.getexif()
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-    for tagid in exifdata:
-        tagname = TAGS.get(tagid, tagid)
-        value = exifdata.get(tagid)
-        print(tagname)
-        print(value)
+    pathh = Path(os.path.normpath(str(obj_img.user.id) + "/" + str(obj_img.usercollection.collection_name) +"/images/1.jpg"))
+    with open(pathh, 'rb') as f:
+        exif_dict = exifread.process_file(f)
+        print ('shooting time: ', exif_dict['EXIF DateTimeOriginal'])
+        print ('camera manufacturer: ', exif_dict['Image Make'])
+        print ('camera model: ', exif_dict['Image Model'])
+        print ('photo size: ', exif_dict['EXIF ExifImageWidth'], exif_dict['EXIF ExifImageLength'])
+
+        #Longitude
+        lon_ref = exif_dict["GPS GPSLongitudeRef"].printable
+        lon = exif_dict["GPS GPSLongitude"].printable[1:-1].replace(" ", "").replace("/", ",").split(",")
+        lon = float(lon[0]) + float(lon[1]) / 60 + float(lon[2]) / float(lon[3]) / 3600
+        if lon_ref != "E":
+            lon = lon * (-1)
+
+        #Latitude
+        lat_ref = exif_dict["GPS GPSLatitudeRef"].printable
+        lat = exif_dict["GPS GPSLatitude"].printable[1:-1].replace(" ", "").replace("/", ",").split(",")
+        lat = float(lat[0]) + float(lat[1]) / 60 + float(lat[2]) / float(lat[3]) / 3600
+        if lat_ref != "N":
+            lat = lat * (-1)
+        print ('latitude and longitude of photo: ', (lat, lon))
+
+        for key in exif_dict:
+            print("%s: %s" % (key, exif_dict[key]))
 
 
 

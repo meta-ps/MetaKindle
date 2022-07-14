@@ -1,11 +1,14 @@
 import os
 import shutil
 from config.settings import BASE_DIR
+from pathlib import Path
 
 
-path1= BASE_DIR+"/FilDrop/__pycache__"
-path2= BASE_DIR+"/FilDrop/migrations"
-path3=BASE_DIR+'/db.sqlite3'
+path1= Path(os.path.normpath(str(BASE_DIR)+"/FilDrop/__pycache__"))
+path2= Path(os.path.normpath(str(BASE_DIR)+"/FilDrop/migrations"))
+path3=Path(os.path.normpath(str(BASE_DIR)+'/db.sqlite3'))
+path4= Path(os.path.normpath(str(BASE_DIR)+"/1"))
+
 
 try:
     shutil.rmtree(path1)
@@ -18,6 +21,19 @@ except OSError as e:
     print ("Error: %s - %s." % (e.filename, e.strerror))
 
 try:
-    shutil.rmtree(path3)
+    os.remove( path3)
 except OSError as e:
     print ("Error: %s - %s." % (e.filename, e.strerror))
+
+
+try:
+    shutil.rmtree( path4)
+except OSError as e:
+    print ("Error: %s - %s." % (e.filename, e.strerror))
+
+cmd1= "python manage.py makemigrations"
+cmd2= "python manage.py makemigrations FilDrop"
+cmd3="python manage.py migrate"
+os.system(cmd1)
+os.system(cmd2)
+os.system(cmd3)
